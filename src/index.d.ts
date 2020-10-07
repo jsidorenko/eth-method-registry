@@ -1,4 +1,4 @@
-declare module 'eth-method-registry2' {
+declare module '@smartwallet/eth-method-registry' {
   class MethodRegistry {
     static parse(signature: string): MethodRegistry.IParseResults
 
