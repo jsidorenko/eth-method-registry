@@ -1,7 +1,8 @@
 const test = require('tape')
-const MethodRegistry = require('../')
+const MethodRegistry = require('../src/')
 const Eth = require('ethjs')
-const provider = new Eth.HttpProvider('https://api.infura.io/v1/jsonrpc/mainnet')
+const infuraId = '';
+const provider = new Eth.HttpProvider(`https://mainnet.infura.io/v3/${infuraId}`)
 const registry = new MethodRegistry({ provider })
 
 test('connecting to main net contract', function (t) {
@@ -18,12 +19,20 @@ test('connecting to main net contract', function (t) {
 
 test('parse signature', function (t) {
   const sig = 'transfer(address,uint256)'
-  const parsed = registry.parse(sig)
+  const parsed = MethodRegistry.parse(sig)
 
   t.equal(parsed.name, 'Transfer')
+  t.equal(parsed.rawName, 'transfer')
   t.equal(parsed.args.length, 2)
   t.equal(parsed.args[0].type, 'address')
   t.equal(parsed.args[1].type, 'uint256')
+  t.end()
+})
+
+test('parse empty signature', function (t) {
+  const sig = ''
+  const parsed = MethodRegistry.parse(sig)
+  t.equal(parsed, null)
   t.end()
 })
 
@@ -126,5 +135,16 @@ test('parse signature that includes a tuple as the last param', function (t) {
   t.equal(parsed.args[2].type, 'address')
   t.equal(parsed.args[3].type, 'uint256')
   t.equal(parsed.args[4].type, 'bytes')
+  t.end()
+})
+
+test('parse signature that includes an array param', function (t) {
+  const sig = 'method(uint256[],string)'
+  const parsed = registry.parse(sig)
+
+  t.equal(parsed.name, 'Method')
+  t.equal(parsed.args.length, 2)
+  t.equal(parsed.args[0].type, 'uint256[]')
+  t.equal(parsed.args[1].type, 'string')
   t.end()
 })

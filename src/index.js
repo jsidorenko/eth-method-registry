@@ -3,8 +3,7 @@ const registryMap = require('./registry-map.json')
 const abi = require('./abi')
 
 class MethodRegistry {
-
-  constructor (opts = {}) {
+  constructor(opts = {}) {
     if (!opts.provider) {
       throw new Error("Missing required 'provider' option")
     }
@@ -19,30 +18,34 @@ class MethodRegistry {
     this.registry = this.eth.contract(abi).at(address)
   }
 
-  async lookup (bytes) {
+  async lookup(bytes) {
     const result = await this.registry.entries(bytes)
     return result[0]
   }
 
-  parse (signature) {
-    const rawName = signature.match(new RegExp("^([^)(]*)\\((.*)\\)([^)(]*)$"))
-    let parsedName
+  parse(signature) {
+    return MethodRegistry.parse(signature)
+  }
 
-    if (rawName) {
-      parsedName = rawName[1].charAt(0).toUpperCase() + rawName[1].slice(1).split(/(?=[A-Z])/).join(' ')
-    } else {
-      parsedName = ''
-    }
+  static parse(signature) {
+    let rawName;
+    try {
+      rawName = signature.match(new RegExp("^([^)(]*)\\((.*)\\)([^)(]*)$"))
+    } catch (e) { }
 
-    const match = signature.match(new RegExp(rawName[1] + '\\(+([a-z1-9,()]+)\\)'))
+    if (!rawName) return null
+
+    const parsedName = rawName[1].charAt(0).toUpperCase() + rawName[1].slice(1).split(/(?=[A-Z])/).join(' ')
+    const match = signature.match(new RegExp(rawName[1] + '\\(+([a-z1-9,()\\[\\]]+)\\)'))
 
     let args = [];
     if (match) {
-      args = match[1].match(/[A-z1-9]+/g).map((arg) => { return {type: arg}})
+      args = match[1].match(/[A-z1-9]+/g).map((arg) => ({ type: arg }))
     }
-  
+
     return {
       name: parsedName,
+      rawName: rawName[1],
       args
     }
   }

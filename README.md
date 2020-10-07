@@ -1,19 +1,21 @@
-# Eth Method Registry [![CircleCI](https://circleci.com/gh/danfinlay/eth-method-registry.svg?style=svg)](https://circleci.com/gh/danfinlay/eth-method-registry)
+# Eth Method Registry
 
 A javascript library for getting Solidity method data from a four-byte method signature.
 
-Currently uses [the parity on-chain method registry](https://www.bokconsulting.com.au/blog/a-quick-look-at-paritys-signature-registry-contract/), but eventually I am interested in adding various parallel methods, whatever works and returns a valid response!
+Currently, uses [the parity on-chain method registry](https://www.bokconsulting.com.au/blog/a-quick-look-at-paritys-signature-registry-contract/), but eventually I am interested in adding various parallel methods, whatever works and returns a valid response!
 
 ## Installation
 
 With Node.js Installed:
 
-`yarn install eth-method-registry -S`
+`npm install --save @smartwallet/eth-method-registry`
+# OR
+`yarn add @smartwallet/eth-method-registry`
 
 ## Usage
 
 ```javascript
-const MethodRegistry = require('eth-method-registry')
+const MethodRegistry = require('@smartwallet/eth-method-registry')
 const Eth = require('ethjs')
 const provider = new Eth.HttpProvider('https://mainnet.infura.io/v3/YOUR-PROJECT-ID')
 const registry = new MethodRegistry({ provider })
@@ -28,9 +30,14 @@ registry.lookup('0xa9059cbb')
 // into something more useful for rendering:
 const sig = 'transferFrom(address,uint256)'
 const parsed = registry.parse(sig)
+
+// Also possible to call the static method
+const parsed = MethodRegistry.parse(sig)
+
 /* Parsed value:
    {
-    name :'Transfer From',
+    name: 'Transfer From',
+    rawName: 'transferFrom', 
     args: [
       { type: 'address' },
       { type: 'uint256' }
